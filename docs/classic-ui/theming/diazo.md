@@ -176,3 +176,52 @@ For instance, you may need to put together the main menu, the language change, a
 Sometimes it is easier to override the corresponding template in Plone, build the new HTML structure there, and replace one thing in the {file}`rules.xml` file than trying to write complex Diazo rules or writing XSLT.
 
 The size of the {file}`rules.xml` file and the number of rules it contains can negatively impact the performance of your site.
+
+
+### Disabling Diazo for AJAX requests
+
+You can disable AJAX requests for Diazo themes with the help of the `ajax_load` parameter.
+This parameter is used in some places throughout Plone to indicate AJAX requests, which normally should not be transformced by Diazo.
+Also, in Plone 6.2 the `ajax_load` parameter will [automatically be added to the request](https://github.com/plone/Products.CMFPlone/pull/4169) for all AJAX requests.
+
+Firs you need a theme-parameter in your {file}`manifest.cfg` file.
+
+```cfg
+[theme:parameters]
+ajax_load = python:request.get('ajax_load')
+```
+
+Then you can disable Diazo for AJAX requests in your {file}`rules.xml` file:
+
+```xml
+  <notheme if="$ajax_load" /><!-- don't theme ajax requests -->
+```
+
+After that you would need to restart you instance and reload your theme.
+One way is to select another theme and then switch back to your own theme in the theming control panel.
+For a programmatical way, check [this pull request in plonetheme.barceloneta](https://github.com/plone/plonetheme.barceloneta/pull/404).
+
+
+### Completly disable Diazo
+
+You might want to not use Diazo for your theme and fully disable it.
+This can be done by setting the `X-Theme-Disabled` http header before Diazo gets active, e.g. in a `IBeforeTraverseEvent` event subscriber.
+
+In this example we add an event subscriber in e.g. a {file}`subscribers.py` file in a add-on package:
+
+```python
+def disable_diazo(obj, event):
+    event.request.response.setHeader("X-Theme-Disabled", True)
+```
+
+And then it needs to be registered in a {file}`configure.zcml` file:
+
+```xml
+  <subscriber
+    for="*
+         zope.traversing.interfaces.IBeforeTraverseEvent"
+    handler=".subscribers.disable_diazo"
+  />
+```
+
+Now Diazo should be disabled for all requests.

@@ -180,9 +180,14 @@ The size of the {file}`rules.xml` file and the number of rules it contains can n
 
 ### Disabling Diazo for AJAX requests
 
-You can disable AJAX requests for Diazo themes with the help of the `ajax_load` parameter.
+You can disable AJAX requests for Diazo themes with the help of the `ajax_load` request parameter.
 This parameter is used in some places throughout Plone to indicate AJAX requests, which normally should not be transformced by Diazo.
-Also, in Plone 6.2 the `ajax_load` parameter will [automatically be added to the request](https://github.com/plone/Products.CMFPlone/pull/4169) for all AJAX requests.
+Also, in Plone 6.2 the `ajax_load` parameter will [automatically be added to the request](https://github.com/plone/Products.CMFPlone/pull/4169) for most AJAX requests.
+
+```{note}
+Note: For Plone versions before 6.2, add the `ajax_load` query string parameter for your AJAX requests, e.g. `?ajax_load=1`.
+For versions 6.2 and later, this is done automatically for most AJAX requests.
+```
 
 Firs you need a theme-parameter in your {file}`manifest.cfg` file.
 

@@ -180,19 +180,16 @@ The size of the {file}`rules.xml` file and the number of rules it contains can n
 
 ### Disable Diazo for AJAX requests
 
-After sending an AJAX request from the client to Plone, Plone returns a JSON response.
-Normally, this response should not get transformed by Diazo themes, and is usually handled in client-side JavaScript.
+When sending an AJAX request to normal browser views in Plone, Plone will respond with an HTML page which normally is also transformed via the Diazo theming engine.
+In some cases this is an unnecessary overhead, if you only want to inject a small snippet of HTML into the page.
 
 To prevent this transformation, disable AJAX requests for Diazo themes by using the `ajax_load` HTTP request parameter.
 `ajax_load` is used in Plone to indicate AJAX requests.
 When added to the query string, `ajax_load=1` disables a full page rendering, whereas `ajax_load=0` enables it.
 
-````{versionadded} Plone 6.2
-In Plone 6.2, the query parameter and its value `ajax_load=1` are automatically added to most AJAX requests by default.
-
-```{seealso}
-See the related pull request [Automatically set the ajax_load request parameter, `plone/Products.CMFPlone` #4169](https://github.com/plone/Products.CMFPlone/pull/4169).
-```
+````{versionadded} plonetheme.barceloneta 3.3.0
+In Plone's standard theme plonetheme.barceloneta 3.3.0 the `ajax_load` theme parameter to disable Diazo was added.
+If you use this theme, the next steps are obsolete.
 ````
 
 Manually add the HTTP request parameter and its value as follows.
@@ -219,25 +216,4 @@ Choose any method to load this change in your theme.
 
 ### Completely disable Diazo
 
-You can fully disable Diazo for your theme.
-
-Set the `X-Theme-Disabled` HTTP header before Diazo gets active, such as in an `IBeforeTraverseEvent` event subscriber, as shown in the following example.
-
-Add an event subscriber in a {file}`subscribers.py` file in an add-on package.
-
-```python
-def disable_diazo(obj, event):
-    event.request.response.setHeader("X-Theme-Disabled", True)
-```
-
-Then register it in a {file}`configure.zcml` file.
-
-```xml
-<subscriber
-  for="*
-       zope.traversing.interfaces.IBeforeTraverseEvent"
-  handler=".subscribers.disable_diazo"
-/>
-```
-
-Now Diazo should be disabled for all requests.
+You can fully disable Diazo and plone.app.theming based themes by setting the `plone.app.theming.interfaces.IThemeSettings.enabled` registry entry to `False`.
